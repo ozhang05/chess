@@ -17,9 +17,9 @@ public class Game {
 			}
 			System.out.println(b.toString(turnCount%2 == 0));
 			//below is used to check different aspects of the game by following real ones
-            //System.out.println(b.toString(false));
+			//System.out.println(b.toString(false));
 			if (b.checkKingCheck(turnCount%2!=0)) {
-				System.out.println("some1 checked");
+				//System.out.println("some1 checked");
 				if (b.isCheckmated(turnCount%2!=0)) {
 					won = true;
 					if (turnCount%2 != 0) {
