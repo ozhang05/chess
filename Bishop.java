@@ -1,5 +1,5 @@
 public class Bishop extends Piece{
-	Bishop(boolean color)  {
+	Bishop(boolean color) {
 		super(color, true, false);
 		for (int i = -7; i < Board.boardSize; i++) {
 			if (i != 0) {

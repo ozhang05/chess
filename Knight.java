@@ -1,5 +1,5 @@
 public class Knight extends Piece{
-	Knight(boolean color)  {
+	Knight(boolean color) {
 		super(color);
 		addPoint(-2, -1);
 		addPoint(-2, 1);
