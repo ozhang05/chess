@@ -69,7 +69,7 @@ public class Game {
 						continue;
 					}
 					if (b.board[list[0]][list[1]].getPiece().checkKing()) {
-						if (b.checkKingCheck(turnCount%2!=0)) {
+						if (b.checkKingCheck(turnCount%2!=0, list[2], list[3])) {
 							System.out.println("under check when taking here");
 							continue;
 						}

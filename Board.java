@@ -243,34 +243,15 @@ public class Board {
 									if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
 										continue;
 									}
-									System.out.println(y);
-									System.out.println(x);
-									System.out.println(y+p.getY(i));
-									System.out.println(x+p.getX(i));
-									System.out.println(c);
-									System.out.println(p.getColor());
-									System.out.println("gets here tufts");
 									return false;
 								}
 								//can take own pieces
 							} else {
 								if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
 									if (p.canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
-					 					System.out.println(y);
-										System.out.println(x);
-										System.out.println(y+p.getY(i));
-										System.out.println(x+p.getX(i));
-										System.out.println(c);
-										System.out.println(p.getColor());
-										System.out.println("gets here5");
 										return false;
 									}
 									if (p.canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
-										System.out.println(y);
-										System.out.println(x);
-										System.out.println(c);
-										System.out.println(p.getColor());
-										System.out.println("gets here6");
 										return false;
 									}
 								}
@@ -441,7 +422,6 @@ public class Board {
 			board[y2][x2].p.changeMoveStatus(true);
 			return true;
 		} else {
-			System.out.println("(" + y1 + ", " + y2 + ")" + "moving to (" + y1 + ", " + y2 + ")");
 			System.out.println("invalid move");
 		return false;
 		}
@@ -469,8 +449,6 @@ public class Board {
 		boolean checked = false;
 		boolean temp = board[y1][x1].getPiece().getFirstMove();
 		movePiece(y1, x1, y2, x2);
-		System.out.println("this is the createsacheckmove: " + y1 + ", " + x1 + ", " + board[y2][x2].getPiece().getColor());
-		System.out.println(checkKingCheck(board[y2][x2].getPiece().getColor()));
 		if (checkKingCheck(board[y2][x2].getPiece().getColor())) {
 			checked = true;
 		}
