@@ -32,8 +32,4 @@ public class Tile {
 	public String getValue() {
 		return p.getValue();
 	}
-
-// public void draw (Graphics g){
-// fillRect();
-// }
-	}
+}

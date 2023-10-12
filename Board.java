@@ -47,26 +47,25 @@ public class Board {
 	public boolean isCheckmated(boolean c) {
 		int checkCount = 0;
 		int checkingY = 0, checkingX = 0;
-		int trueCheckingY = 0, trueCheckingX = 0;
+		int lowerVal = 0, higherVal = 0;
 		int scenario = 0;
-		int tempKingY = 0, tempKingX = 0;
+		//int tempKingY = 0, tempKingX = 0;
 		boolean isY = false;
-		int usedKingY = bKingY;
-		int usedKingX = bKingX;
+		int checkedKingY = bKingY;
+		int checkedKingX = bKingX;
 		if (c) {
-			usedKingY = wKingY;
-			usedKingX = wKingX;
+			checkedKingY = wKingY;
+			checkedKingX = wKingX;
 		}
-		tempKingY = usedKingY;
-		tempKingX = usedKingX;
+
+		// checks if the king can move out of check
 		for (int y = -1; y < 2; y++){
-			if (usedKingY + y >= 0 && usedKingY + y < boardSize) {
+			if (checkedKingY + y >= 0 && checkedKingY + y < boardSize) {
 				for (int x = -1; x < 2; x++) {
-					if (usedKingX + x >= 0 && usedKingX + x < boardSize) {
-						if (!checkKingCheck(c, usedKingY + y, usedKingX + x)) {
-							if (board[usedKingY + y][usedKingX + x].pieceExists()) {
-								if (c != board[usedKingY+y][usedKingX+x].getPiece().getColor()) {
-									System.out.println("gets here11");
+					if (checkedKingX + x >= 0 && checkedKingX + x < boardSize) {
+						if (!checkKingCheck(c, checkedKingY + y, checkedKingX + x)) {
+							if (board[checkedKingY + y][checkedKingX + x].pieceExists()) {
+								if (c != board[checkedKingY+y][checkedKingX+x].getPiece().getColor()) {
 									return false;
 								}
 							} else {
@@ -80,106 +79,116 @@ public class Board {
 		for (int y = 0; y < boardSize; y++) {
 			for (int x = 0; x < boardSize; x++) {
 				if (board[y][x].getPiece().getColor() != c) {
-					if (board[y][x].canTake(y, x, usedKingY, usedKingX)) {
-						if (board[y][x].getPiece().canHori() && isHoriMove(y, x, usedKingY, usedKingX) && !canMoveHori(y, x, usedKingY, usedKingX)) {
+					if (board[y][x].canTake(y, x, checkedKingY, checkedKingX)) {
+						if (board[y][x].getPiece().canHori() && isHoriMove(y, x, checkedKingY, checkedKingX) && !canMoveHori(y, x, checkedKingY, checkedKingX)) {
 							continue;
 						}
-						if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, usedKingY, usedKingX) && !canMoveDiag(y, x, usedKingY, usedKingX)) {
+						if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, checkedKingY, checkedKingX) && !canMoveDiag(y, x, checkedKingY, checkedKingX)) {
 							continue;
 						}
 						checkingY = y;
 						checkingX = x;
-						trueCheckingY = y;
-						trueCheckingX = x;
 						System.out.println(y + ", " + x);
 						checkCount++;
 					}
 				}
 			}
 		}
+
 		if (checkCount > 1) {
-			System.out.println("double check and king cannot move");
+			//if the king is checked by 2 pieces, and can't move it is checkmate
 			return true;
 		}
-		if ((Math.abs(checkingY-usedKingY) > 1 || Math.abs(checkingX-usedKingX) > 1) && !board[checkingY][checkingX].getPiece().getValue().equals("n")) {
-			if (usedKingY == checkingY) {
+		if ((Math.abs(checkingY-checkedKingY) > 1 || Math.abs(checkingX-checkedKingX) > 1) && !board[checkingY][checkingX].getPiece().getValue().equals("n")) {
+			//scenario 0 is for if you are being checked by a knight
+			//scenario 1 is for when you are being checked in a straight line
+			//scenario 2 is for when you are being checked diagonally
+
+			//assign higher and lower val so that later loops can check from higher value to lower value instead of having to change depending on situation
+			if (checkedKingY == checkingY) {
 				scenario = 1;
-				if (checkingX > usedKingX) {
-					tempKingX = checkingX;
-					checkingX = usedKingX;
+				higherVal = checkedKingX;
+				lowerVal = checkingX;
+				if (checkingX > checkedKingX) {
+					higherVal = checkingX;
+					lowerVal = checkedKingX;
 				}
-			} else if (usedKingX == checkingX) {
+			} else if (checkedKingX == checkingX) {
 				scenario = 1;
 				isY = true;
-				if (checkingY > usedKingY) {
-					tempKingY = checkingY;
-					checkingY = usedKingY;
+				higherVal = checkedKingY;
+				lowerVal = checkingY;
+				if (checkingY > checkedKingY) {
+					higherVal = checkingY;
+					lowerVal = checkedKingX;
 				}
 			} else {
-				if (checkingY > usedKingY) {
-					tempKingX = checkingX;
-					tempKingY = checkingY;
-					checkingX = usedKingX;
-					checkingY = usedKingY;
+				if (checkingY > checkedKingY) {
+					// tempKingX = checkingX;
+					// tempKingY = checkingY;
+					// checkingX = usedKingX;
+					// checkingY = usedKingY;
 				}
 				scenario = 2;
 			}
 		}
+
+		int currentStatic = 0, currentMoving = 0;
 		for (int y = 0; y < boardSize; y++) {
 			for (int x = 0; x < boardSize; x++) {
 				if (board[y][x].getPiece().getColor() == c) {
-					if (board[y][x].canTake(y, x, trueCheckingY, trueCheckingX) && !createsACheckTake(y, x, trueCheckingY, trueCheckingX)) {
-						if (board[y][x].getPiece().canHori() && isHoriMove(y, x, trueCheckingY, trueCheckingX) && !canMoveHori(y, x, trueCheckingY, trueCheckingX)) {
+					//if you can take the checking piece, then it is not checkmate (returns false)
+					if (board[y][x].canTake(y, x, checkingY, checkingX) && !createsACheckMove(y, x, checkingY, checkingX)) {
+						if (board[y][x].getPiece().canHori() && isHoriMove(y, x, checkingY, checkingX) && !canMoveHori(y, x, checkingY, checkingX)) {
 							continue;
 						}
-						if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, trueCheckingY, trueCheckingX) && !canMoveDiag(y, x, trueCheckingY, trueCheckingX)) {
+						if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, checkingY, checkingX) && !canMoveDiag(y, x, checkingY, checkingX)) {
 							continue;
 						}
-						System.out.println("gets here1325135");
 						return false;
 					}
 					if (scenario == 1) {
 						System.out.println("system 1");
 						Piece p = board[y][x].getPiece();
 						int listLength = p.getLength();
+
+						//the value of these variables changes whether you are being checked horizontally or vertically
+						//this allows for one if statement to work for both horizontal and vertical checking
+						int staticVal = y;
+						int movingVal = x;
+						int tempKingVal = checkedKingY;
+						if (isY) {
+							staticVal = x;
+							movingVal = y;
+							tempKingVal = checkedKingX;
+						}
 						for (int i = 0; i < listLength; i++) {
+							currentStatic = p.getY(i);
+							currentMoving = p.getX(i);
 							if (isY) {
-								if (checkingY < y+p.getY(i) && y+p.getY(i) > usedKingY && x+p.getX(i) == usedKingX) {
-									if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
-										if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
-											continue;
-										}
-										if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
-											continue;
-										}
-										System.out.println("gets here22");
-										return false;
+								currentStatic = p.getX(i);
+								currentMoving = p.getY(i);
+							}
+
+							if (lowerVal < movingVal+currentMoving && movingVal+currentMoving > higherVal && staticVal+currentStatic == tempKingVal) {
+								if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
+									if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
+										continue;
 									}
-									continue;
-								}
-							} else {
-								if (checkingX < x+p.getX(i) && x+p.getX(i) > usedKingX && y+p.getY(i) == usedKingY) {
-									if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
-										if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
-											continue;
-										}
-										if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
-											continue;
-										}
-										System.out.println("gets here33");
-										return false;
+									if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
+										continue;
 									}
-									continue;
+									return false;
 								}
+								continue;
 							}
 						}
 					} else if (scenario == 2) {
-						System.out.println("system 2");
 						Piece p = board[y][x].getPiece();
 						int listLength = p.getLength();
 						boolean b = checkingX < tempKingX;
 						for (int i = 0; i < listLength; i++) {
-							for (int t = checkingY; t < tempKingY; t++) {
+							for (int t = lowerVal; t < higherVal; t++) {
 								if (b) {
 									if (y+p.getY(i) > checkingY && y+p.getY(i) < tempKingY) {
 										int temp = tempKingY - (y+p.getY(i));
@@ -202,7 +211,7 @@ public class Board {
 									}
 								} else {
 									if (y+p.getY(i) > checkingY && y+p.getY(i) < tempKingY) {
-										int temp = tempKingY -(y+p.getY(i));
+										int temp = tempKingY - (y+p.getY(i));
 										if (x-temp == x+p.getX(i)) {
 											if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
 												if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
@@ -437,57 +446,24 @@ public class Board {
 		System.out.println("invalid take");
 		return false;
 	}
-	
+
 	public boolean createsACheckMove(int y1, int x1, int y2, int x2) {
-	//should be unnecessary, just was there as a precaution
-		/*if (board[y1][x1].getPiece().canHori() && isHoriMove(y1, x1, y2, x2) && !canMoveHori(y1, x1, y2, x2)) {
-			return false;
-		}
-		if (board[y1][x1].getPiece().canDiag() && isDiagMove(y1, x1, y2, x2) && !canMoveDiag(y1, x1, y2, x2)) {
-			return false;
-		}*/
 		boolean checked = false;
-		boolean temp = board[y1][x1].getPiece().getFirstMove();
-		movePiece(y1, x1, y2, x2);
-		if (checkKingCheck(board[y2][x2].getPiece().getColor())) {
-			checked = true;
-		}
-		board[y1][x1].setPiece(board[y2][x2].getPiece());
-		board[y2][x2].removePiece();
-		board[y1][x1].getPiece().changeMoveStatus(temp);
-		return checked;
-	}
-	
-	public boolean createsACheckTake(int y1, int x1, int y2, int x2) {
-		boolean checked = false;
+		boolean firstMove = board[y1][x1].getPiece().getFirstMove();
 		Piece p = new Piece();
-		Boolean temp = board[y1][x1].getPiece().getFirstMove();
-		if (board[y1][x1].canTake(y1, x1, y2, x2)) {
-			if (board[y1][x1].getPiece().canHori()) {
-				if (isHoriMove(y1, x1, y2, x2)) {
-					if (!canMoveHori(y1, x1, y2, x2)) {
-						return false;
-					}
-				}
-			}
-			if (board[y1][x1].getPiece().canDiag()) {
-				if (isDiagMove(y1, x1, y2, x2)) {
-					if (!canMoveDiag(y1, x1, y2, x2)) {
-						return false;
-					}
-				}
-			}
+		if (board[y2][x2].pieceExists()) {
 			p = board[y2][x2].getPiece();
 			takePiece(y1, x1, y2, x2);
 		} else {
-			return false;
+			movePiece(y1, x1, y2, x2);
 		}
 		if (checkKingCheck(board[y2][x2].getPiece().getColor())) {
 			checked = true;
 		}
 		board[y1][x1].setPiece(board[y2][x2].getPiece());
 		board[y2][x2].setPiece(p);
-		board[y1][x1].getPiece().changeMoveStatus(temp);
+		board[y1][x1].getPiece().changeMoveStatus(firstMove);
+		adjustKing(y2, x2, y1, x1);
 		return checked;
 	}
 
