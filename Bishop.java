@@ -1,11 +1,11 @@
 public class Bishop extends Piece{
 	Bishop(boolean color) {
 		super(color, true, false);
-		for (int i = -7; i < Board.boardSize; i++) {
-			if (i != 0) {
-				addPoint(i, i);
-				addPoint(i, -i);
-			}
+		for (int i = 1; i < Board.boardSize; i++) {
+			addPoint(i, i);
+			addPoint(i, -i);
+			addPoint(-i, i);
+			addPoint(-i, -i);
 		}
 	}
 	Bishop(Piece p) {

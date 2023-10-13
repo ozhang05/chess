@@ -41,15 +41,20 @@ public class Board {
 				temp += i + ". ";
 			}
 		}
-	return temp;
+		System.out.println();
+		System.out.println("wking y and x: " + wKingY + " , " + wKingX);
+		System.out.println("bking y and x: " + bKingY + " , " + bKingX);
+		System.out.println();
+		return temp;
 	}
 	
 	public boolean isCheckmated(boolean c) {
 		int checkCount = 0;
+		//coordinates for piece checking the king
 		int checkingY = 0, checkingX = 0;
 		int lowerVal = 0, higherVal = 0;
+		int lowerXVal = 0, higherXVal = 0;
 		int scenario = 0;
-		//int tempKingY = 0, tempKingX = 0;
 		boolean isY = false;
 		int checkedKingY = bKingY;
 		int checkedKingX = bKingX;
@@ -88,7 +93,6 @@ public class Board {
 						}
 						checkingY = y;
 						checkingX = x;
-						System.out.println(y + ", " + x);
 						checkCount++;
 					}
 				}
@@ -123,11 +127,20 @@ public class Board {
 					lowerVal = checkedKingX;
 				}
 			} else {
-				if (checkingY > checkedKingY) {
-					// tempKingX = checkingX;
-					// tempKingY = checkingY;
-					// checkingX = usedKingX;
-					// checkingY = usedKingY;
+				higherVal = checkingY;
+				lowerVal = checkedKingY;
+
+				if (checkingY < checkedKingY) {
+					higherVal = checkedKingY;
+					lowerVal = checkingY;
+				}
+
+				higherXVal = checkingX;
+				lowerXVal = checkedKingX;
+
+				if (checkingX < checkedKingX) {
+					higherVal = checkedKingX;
+					lowerVal = checkingX;
 				}
 				scenario = 2;
 			}
@@ -148,7 +161,6 @@ public class Board {
 						return false;
 					}
 					if (scenario == 1) {
-						System.out.println("system 1");
 						Piece p = board[y][x].getPiece();
 						int listLength = p.getLength();
 
@@ -186,44 +198,18 @@ public class Board {
 					} else if (scenario == 2) {
 						Piece p = board[y][x].getPiece();
 						int listLength = p.getLength();
-						boolean b = checkingX < tempKingX;
 						for (int i = 0; i < listLength; i++) {
-							for (int t = lowerVal; t < higherVal; t++) {
-								if (b) {
-									if (y+p.getY(i) > checkingY && y+p.getY(i) < tempKingY) {
-										int temp = tempKingY - (y+p.getY(i));
-										if (x+temp == x+p.getX(i)) {
-											if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
-												if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
-													System.out.println("checkmate test1");
-													continue;
-												}
-												if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
-													System.out.println("checkmate test2");
-													continue;
-												}
-												System.out.println("gets here44");
-												return false;
+							if (lowerVal < y+p.getY(i) && y+p.getY(i) > higherVal) {
+								if (lowerXVal < x+p.getX(i) && x+p.getX(i) > higherXVal) {
+									if (higherVal - (y+p.getY(i)) == higherXVal - (x+p.getX(i))) {
+										if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
+											if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
+												continue;
 											}
-											System.out.println("checkmate test3");
-											continue;
-										}
-									}
-								} else {
-									if (y+p.getY(i) > checkingY && y+p.getY(i) < tempKingY) {
-										int temp = tempKingY - (y+p.getY(i));
-										if (x-temp == x+p.getX(i)) {
-											if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
-												if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
-													continue;
-												}
-												if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
-													continue;
-												}
-												System.out.println("gets here55");
-												return false;
+											if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
+												continue;
 											}
-											continue;
+											return false;
 										}
 									}
 								}
@@ -233,7 +219,6 @@ public class Board {
 				}
 			}
 		}
-		System.out.println("scenario 0");
 		return true;
 	}
 	
@@ -245,7 +230,7 @@ public class Board {
 					for (int i = 0 ; i < p.getLength(); i++) {
 						if (y+p.getY(i) >= 0 && y+p.getY(i) < boardSize && x+p.getX(i) >= 0 && x+p.getX(i) < boardSize) {
 							if (board[y+p.getY(i)][x+p.getX(i)].pieceExists()) {
-								if (board[y+p.getY(i)][x+p.getX(i)].getPiece().getColor() == c && !createsACheckTake(y, x, y+p.getY(i), x+p.getX(i)) && board[y][x].getPiece().canTake(y, x, y+p.getY(i), x+p.getX(i))) {
+								if (board[y+p.getY(i)][x+p.getX(i)].getPiece().getColor() == c && !createsACheckMove(y, x, y+p.getY(i), x+p.getX(i)) && board[y][x].getPiece().canTake(y, x, y+p.getY(i), x+p.getX(i))) {
 									if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
 										continue;
 									}
@@ -254,7 +239,6 @@ public class Board {
 									}
 									return false;
 								}
-								//can take own pieces
 							} else {
 								if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
 									if (p.canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
@@ -289,13 +273,15 @@ public class Board {
 		//kings color = c
 		for (int y = 0; y < boardSize; y++) {
 			for (int x = 0; x < boardSize; x++) {
-				if(board[y][x].canTake(y, x, newY, newX) && !(board[y][x].getPiece().getColor() == c)) {
+				if(board[y][x].canTake(y, x, newY, newX) && board[y][x].getPiece().getColor() != c) {
 					if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, newY, newX) && !canMoveDiag(y, x, newY, newX)) {
 						continue;
 					}
 					if (board[y][x].getPiece().canHori() && isHoriMove(y, x, newY, newX) && !canMoveHori(y, x, newY, newX)) {
 						continue;
 					}
+					System.out.println("Check king check(1): " + y + " , " + x);
+					System.out.println("Check king check(2): " + newY + " , " + newX);
 					return true;
 				}
 			}
@@ -391,6 +377,7 @@ public class Board {
 				bKingY = y2;
 				bKingX = x2;
 			}
+			// System.out.println("King adjustment: " + y2 + ", " + x2);
 		}
 	}
 	
@@ -404,6 +391,14 @@ public class Board {
 		if (x2 == x1+2) {
 			rx = 7;
 		}
+
+		// System.out.println(y1 == tempKingY);
+		// System.out.println(y2 == tempKingY);
+		// System.out.println(x1 == tempKingX);
+		// System.out.println((x2 == x1+2 || x2 == x1-2));
+
+		// System.out.println(" castle error: " + tempKingX);
+
 		return y1 == tempKingY && y2 == tempKingY && x1 == tempKingX && (x2 == x1+2 || x2 == x1-2) && !board[y1][x1].getPiece().getFirstMove() && !board[y1][rx].getPiece().getFirstMove() && canMoveHori(y1, x1, y2, x2) && !checkCastleCheck(c, x1, x2);
 	}
 	
@@ -424,23 +419,23 @@ public class Board {
 	}
 
 	public boolean movePiece(int y1, int x1, int y2, int x2) {
-		adjustKing(y1, x1, y2, x2);
 		if (board[y1][x1].isValidMove(y1, x1, y2, x2)) {
+			adjustKing(y1, x1, y2, x2);
 			board[y2][x2].setPiece(board[y1][x1].getPiece());
 			board[y1][x1].removePiece();
 			board[y2][x2].p.changeMoveStatus(true);
 			return true;
-		} else {
-			System.out.println("invalid move");
-		return false;
 		}
+		System.out.println("invalid move");
+		return false;
 	}
 	
 	public boolean takePiece(int y1, int x1, int y2, int x2) {
-		adjustKing(y1, x1, y2, x2);
 		if (board[y1][x1].getPiece().canTake(y1, x1, y2, x2)) {
+			adjustKing(y1, x1, y2, x2);
 			board[y2][x2].setPiece(board[y1][x1].getPiece());
 			board[y1][x1].removePiece();
+			board[y2][x2].p.changeMoveStatus(true);
 			return true;
 		}
 		System.out.println("invalid take");
@@ -453,9 +448,13 @@ public class Board {
 		Piece p = new Piece();
 		if (board[y2][x2].pieceExists()) {
 			p = board[y2][x2].getPiece();
-			takePiece(y1, x1, y2, x2);
+			if (!takePiece(y1, x1, y2, x2)) {
+				return false;
+			}
 		} else {
-			movePiece(y1, x1, y2, x2);
+			if (!movePiece(y1, x1, y2, x2)) {
+				return false;
+			}
 		}
 		if (checkKingCheck(board[y2][x2].getPiece().getColor())) {
 			checked = true;
@@ -463,6 +462,8 @@ public class Board {
 		board[y1][x1].setPiece(board[y2][x2].getPiece());
 		board[y2][x2].setPiece(p);
 		board[y1][x1].getPiece().changeMoveStatus(firstMove);
+
+		
 		adjustKing(y2, x2, y1, x1);
 		return checked;
 	}
@@ -515,18 +516,5 @@ public class Board {
 		board[boardSize-1][boardSize-3-1].setPiece(k);
 		bKingY = boardSize-1;
 		bKingX = boardSize-3-1;
-		//below is used to test stalemate. uncomment out below, comment out above, and move white queen with 7 2 5 4 to stalemate.
-		// board[7][7].setPiece(r);
-		// board[7][6].setPiece(n);
-		// board[7][5].setPiece(b);
-		// board[6][7].setPiece(q);
-		// board[6][6].setPiece(new Pawn(false));
-		// board[6][4].setPiece(new Pawn(false));
-		// board[5][7].setPiece(r);
-		// board[5][6].setPiece(k);
-		// bKingY = 5;
-		// bKingX = 6;
-		// board[5][5].setPiece(new Pawn(false));
-		// board[4][7].setPiece(new Pawn(false));
 	}
-	}
+}

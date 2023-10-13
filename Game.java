@@ -65,6 +65,8 @@ public class Game {
 					}
 				}
 				if (b.createsACheckMove(list[0], list[1], list[2], list[3])) {
+					//System.out.println(list[0] + " , " + list[1]);
+					System.out.println("this is the inputs for the created check: " + list[2] + " , " + list[3]);
 					System.out.println("You are creating a check");
 					continue;
 				}
@@ -107,6 +109,7 @@ public class Game {
 					moveMade = true;
 					turnCount++;
 				} else {
+					System.out.println("invalid: " + list[0] + " , " + list[1] + " , " + list[2] + " , " + list[3] + " , " + b.isValidCastle(turnCount%2 != 0, list[0], list[1], list[2], list[3]));
 					System.out.println("This is not a valid move");
 					continue;
 				}
