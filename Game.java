@@ -11,9 +11,6 @@ public class Game {
 		boolean moveMade = false;
 		while (!won && !stalemate) {
 			if (moveMade) {
-				//this clears the console
-				//System.out.print("\033[H\033[2J");
-				//System.out.flush();
 				moveMade = false;
 			}
 			//choose one of the following print methods. the first one flips the board each turn, the second one plays from the perspective of white

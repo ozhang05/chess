@@ -81,6 +81,7 @@ public class Board {
 				}
 			}
 		}
+		//this finds the piece checking the king, and stores its coordinates
 		for (int y = 0; y < boardSize; y++) {
 			for (int x = 0; x < boardSize; x++) {
 				if (board[y][x].getPiece().getColor() != c) {
@@ -108,7 +109,7 @@ public class Board {
 			//scenario 1 is for when you are being checked in a straight line
 			//scenario 2 is for when you are being checked diagonally
 
-			//assign higher and lower val so that later loops can check from higher value to lower value instead of having to change depending on situation
+			//assign higher and lower val so that later loops can check from higher value to lower value instead of having to change depending on direction
 			if (checkedKingY == checkingY) {
 				scenario = 1;
 				higherVal = checkedKingX;
@@ -199,8 +200,8 @@ public class Board {
 						Piece p = board[y][x].getPiece();
 						int listLength = p.getLength();
 						for (int i = 0; i < listLength; i++) {
-							if (lowerVal < y+p.getY(i) && y+p.getY(i) > higherVal) {
-								if (lowerXVal < x+p.getX(i) && x+p.getX(i) > higherXVal) {
+							if (lowerVal < y+p.getY(i) && y+p.getY(i) < higherVal) {
+								if (lowerXVal < x+p.getX(i) && x+p.getX(i) < higherXVal) {
 									if (higherVal - (y+p.getY(i)) == higherXVal - (x+p.getX(i))) {
 										if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
 											if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
@@ -280,8 +281,6 @@ public class Board {
 					if (board[y][x].getPiece().canHori() && isHoriMove(y, x, newY, newX) && !canMoveHori(y, x, newY, newX)) {
 						continue;
 					}
-					System.out.println("Check king check(1): " + y + " , " + x);
-					System.out.println("Check king check(2): " + newY + " , " + newX);
 					return true;
 				}
 			}
@@ -377,7 +376,6 @@ public class Board {
 				bKingY = y2;
 				bKingX = x2;
 			}
-			// System.out.println("King adjustment: " + y2 + ", " + x2);
 		}
 	}
 	
@@ -391,13 +389,6 @@ public class Board {
 		if (x2 == x1+2) {
 			rx = 7;
 		}
-
-		// System.out.println(y1 == tempKingY);
-		// System.out.println(y2 == tempKingY);
-		// System.out.println(x1 == tempKingX);
-		// System.out.println((x2 == x1+2 || x2 == x1-2));
-
-		// System.out.println(" castle error: " + tempKingX);
 
 		return y1 == tempKingY && y2 == tempKingY && x1 == tempKingX && (x2 == x1+2 || x2 == x1-2) && !board[y1][x1].getPiece().getFirstMove() && !board[y1][rx].getPiece().getFirstMove() && canMoveHori(y1, x1, y2, x2) && !checkCastleCheck(c, x1, x2);
 	}
