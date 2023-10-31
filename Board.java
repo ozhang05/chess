@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.event.MouseListener;
 
 public class Board extends JFrame{
 	public static final int boardSize = 8;
@@ -33,12 +35,30 @@ public class Board extends JFrame{
 				}
 				b.setOpaque(true);
 				b.setBorder(null);
-				// new ActionListener() 
-				// b.addActionListener(new ActionListener() {
-				// 	public void actionPerformed(ActionEvent e) {
-				// 		System.out.println("button pressed");
-				// 	}
-				// })
+				/*
+				b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						System.out.println("action detected");
+					}
+				});
+				*/
+				b.addMouseListener(new MouseListener() {
+					public void mousePressed(MouseEvent e) {
+						System.out.println("mouse pressed here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
+					}
+					public void mouseReleased(MouseEvent e) {
+						System.out.println("mouse released here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
+					}
+					public void mouseClicked(MouseEvent e) {
+						System.out.println("mouse clicked here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
+					}
+					public void mouseExited(MouseEvent e) {
+
+					}
+					public void mouseEntered(MouseEvent e) {
+
+					}
+				});
 				if ((y+x)%2 == 0) {
 					b.setBackground(Color.decode("#769656"));
 				} else {
