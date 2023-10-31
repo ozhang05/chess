@@ -1,9 +1,13 @@
 import java.util.ArrayList;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 public class Piece {
 	boolean firstMove = false;
 	ArrayList<Integer> validYMove = new ArrayList<Integer>();
 	ArrayList<Integer> validXMove = new ArrayList<Integer>();
+	BufferedImage img = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+	BufferedImage test = null;
 	public boolean pieceColor;
 	public boolean canMoveDiag, canMoveHori;
 	public boolean isKing = false;
@@ -20,6 +24,9 @@ public class Piece {
 	}
 	public boolean getColor() {
 		return pieceColor;
+	}
+	public Image getImage() {
+		return img;
 	}
 	public boolean canDiag() {
 		return canMoveDiag;

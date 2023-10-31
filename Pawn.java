@@ -1,3 +1,7 @@
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.*;
+
 public class Pawn extends Piece{
 		public int counter;
 		
@@ -11,6 +15,20 @@ public class Pawn extends Piece{
 			addPoint(-2, 0);
 		}
 		
+	}
+
+	public Image getImage() {
+
+		try {
+			img = ImageIO.read(getClass().getResourceAsStream("/piece_images/bp.png"));
+			if (super.getColor()) {
+				img = ImageIO.read(getClass().getResourceAsStream("/piece_images/wp.png"));
+			}
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		return img;
+
 	}
 		
 	public void changeMoveStatus(boolean m) {

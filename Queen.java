@@ -1,3 +1,7 @@
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.*;
+
 public class Queen extends Piece{
 	Queen(boolean color) {
 		super(color, true, true);
@@ -10,6 +14,22 @@ public class Queen extends Piece{
 			}
 		}
 	}
+
+	public Image getImage() {
+
+		try {
+			img = ImageIO.read(getClass().getResourceAsStream("/piece_images/bq.png"));
+			if (super.getColor()) {
+				img = ImageIO.read(getClass().getResourceAsStream("/piece_images/wq.png"));
+			}
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		return img;
+
+	}
+
+
 	Queen(Piece p) {
 		this(p.getColor());
 	}

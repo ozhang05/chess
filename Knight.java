@@ -1,3 +1,7 @@
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.*;
+
 public class Knight extends Piece{
 	Knight(boolean color) {
 		super(color);
@@ -10,6 +14,22 @@ public class Knight extends Piece{
 		addPoint(2, 1);
 		addPoint(2, -1);
 	}
+
+	public Image getImage() {
+
+		try {
+			img = ImageIO.read(getClass().getResourceAsStream("/piece_images/bn.png"));
+			if (super.getColor()) {
+				img = ImageIO.read(getClass().getResourceAsStream("/piece_images/wn.png"));
+			}
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		return img;
+
+	}
+
+
 	Knight(Piece p) {
 		this(p.getColor());
 	}	

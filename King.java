@@ -1,3 +1,7 @@
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.*;
+
 public class King extends Piece{
 	King(boolean color)  {
 		super(color);
@@ -10,6 +14,22 @@ public class King extends Piece{
 			}
 		}
 	}
+
+	public Image getImage() {
+
+		try {
+			img = ImageIO.read(getClass().getResourceAsStream("/piece_images/bk.png"));
+			if (super.getColor()) {
+				img = ImageIO.read(getClass().getResourceAsStream("/piece_images/wk.png"));
+			}
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		return img;
+
+	}
+
+
 	public boolean isValidMove(int y1, int x1, int y2, int x2) {
 		int tempValY = Math.abs(y2-y1);
 		int tempValX = Math.abs(x2-x1);

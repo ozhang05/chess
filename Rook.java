@@ -1,3 +1,7 @@
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.*;
+
 public class Rook extends Piece{
 	boolean firstMove;
 		Rook(boolean color) {
@@ -9,6 +13,22 @@ public class Rook extends Piece{
 				}
 			}
 		}
+
+		public Image getImage() {
+
+			try {
+				img = ImageIO.read(getClass().getResourceAsStream("/piece_images/br.png"));
+				if (super.getColor()) {
+					img = ImageIO.read(getClass().getResourceAsStream("/piece_images/wr.png"));
+				}
+			} catch (IOException e) {
+				System.out.println(e);
+			}
+			return img;
+	
+		}
+
+
 		Rook(Piece p) {
 			this(p.getColor());
 		}

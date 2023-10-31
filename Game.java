@@ -4,6 +4,7 @@ public class Game {
 	int[] list = new int[4];
 	Scanner myObj = new Scanner(System.in);
 	static Board b = new Board();
+
 	Game() {
 		int turnCount = 1;
 		boolean won = false;

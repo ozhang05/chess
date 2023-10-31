@@ -1,5 +1,9 @@
-public class Board {
+import javax.swing.*;
+import java.awt.*;
+
+public class Board extends JFrame{
 	public static final int boardSize = 8;
+	public static final int SIZE = 100;
 	public Tile[][] board = new Tile[boardSize][boardSize];
 	int wKingX, wKingY;
 	int bKingX, bKingY;
@@ -12,6 +16,40 @@ public class Board {
 		}
 		makePiecesTop();
 		makePiecesBot();
+		createBoard();
+	}
+
+	private void createBoard() {
+		JFrame frame = new JFrame();
+		frame.setLayout(new GridLayout(8, 8));
+		JButton b;
+		for (int y = 7; y >= 0; y--) {
+			for (int x = 0; x < 8; x++) {
+				Image i = board[y][x].getPiece().getImage();
+				i = i.getScaledInstance(SIZE, SIZE, Image.SCALE_DEFAULT);
+				b = new JButton();
+				if (board[y][x].pieceExists()) {
+					b = new JButton(new ImageIcon(i));
+				}
+				b.setOpaque(true);
+				b.setBorder(null);
+				// new ActionListener() 
+				// b.addActionListener(new ActionListener() {
+				// 	public void actionPerformed(ActionEvent e) {
+				// 		System.out.println("button pressed");
+				// 	}
+				// })
+				if ((y+x)%2 == 0) {
+					b.setBackground(Color.decode("#769656"));
+				} else {
+					b.setBackground(Color.decode("#eeeed2"));
+				}
+				frame.add(b);
+			}
+		}
+		frame.setBounds(0, 0, 8*SIZE, 8*SIZE);
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	public String toString(boolean isWhite) {
@@ -409,6 +447,9 @@ public class Board {
 		board[y1][nrx].p.changeMoveStatus(true);
 	}
 
+	public void createEnPassant(int y1, int x1, int y2, int x2)  {
+	}
+
 	public boolean movePiece(int y1, int x1, int y2, int x2) {
 		if (board[y1][x1].isValidMove(y1, x1, y2, x2)) {
 			adjustKing(y1, x1, y2, x2);
@@ -481,9 +522,6 @@ public class Board {
 		wKingX = 4;
 		wKingY = 0;
 		board[0][boardSize-5].setPiece(q);
-		//below is used to test stalemate. uncomment out below
-		// board[7][2].setPiece(q);
-		// board[3][7].setPiece(new Pawn(true));
 	}
 	
 	public void makePiecesBot() {

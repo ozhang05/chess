@@ -1,3 +1,7 @@
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.*;
+
 public class Bishop extends Piece{
 	Bishop(boolean color) {
 		super(color, true, false);
@@ -8,6 +12,21 @@ public class Bishop extends Piece{
 			addPoint(-i, -i);
 		}
 	}
+
+	public Image getImage() {
+
+		try {
+			img = ImageIO.read(getClass().getResourceAsStream("/piece_images/bb.png"));
+			if (super.getColor()) {
+				img = ImageIO.read(getClass().getResourceAsStream("/piece_images/wb.png"));
+			}
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		return img;
+
+	}
+
 	Bishop(Piece p) {
 		this(p.getColor());
 	}
