@@ -1,3 +1,5 @@
+package pieces;
+
 import java.awt.Image;
 import java.io.IOException;
 import javax.imageio.*;
@@ -5,7 +7,7 @@ import javax.imageio.*;
 public class Pawn extends Piece{
 		public int counter;
 		
-	Pawn(boolean color) {
+	public Pawn(boolean color) {
 		super(color, false, true);
 		if (color) {
 			addPoint(1, 0);

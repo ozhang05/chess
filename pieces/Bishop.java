@@ -1,11 +1,15 @@
+package pieces;
+
 import java.awt.Image;
 import java.io.IOException;
 import javax.imageio.*;
 
+import framework.Board;
+
 public class Bishop extends Piece{
-	Bishop(boolean color) {
+	public Bishop(boolean color) {
 		super(color, true, false);
-		for (int i = 1; i < Board.boardSize; i++) {
+		for (int i = 1; i < Board.BOARDSIZE; i++) {
 			addPoint(i, i);
 			addPoint(i, -i);
 			addPoint(-i, i);
@@ -13,8 +17,11 @@ public class Bishop extends Piece{
 		}
 	}
 
-	public Image getImage() {
+	public Bishop(Piece p) {
+		this(p.getColor());
+	}
 
+	public Image getImage() {
 		try {
 			img = ImageIO.read(getClass().getResourceAsStream("/piece_images/bb.png"));
 			if (super.getColor()) {
@@ -26,10 +33,7 @@ public class Bishop extends Piece{
 		return img;
 
 	}
-
-	Bishop(Piece p) {
-		this(p.getColor());
-	}
+	
 	public boolean isValidMove(int y1, int x1, int y2, int x2) {
 		double tempY = Math.abs((1.0 * y1) - y2);
 		double tempX = Math.abs((1.0 * x1) - x2);

@@ -1,56 +1,83 @@
+package framework;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.event.MouseListener;
+
+import pieces.*;
 
 public class Board extends JFrame{
-	public static final int boardSize = 8;
-	public static final int SIZE = 100;
-	public Tile[][] board = new Tile[boardSize][boardSize];
+	public static final int BOARDSIZE = 8;
+	public static final int TILEPIXELSIZE = 100;
+	public final int SIZEADJ;
+	int turnCount = 0;
+	public Tile[][] board = new Tile[BOARDSIZE][BOARDSIZE];
+	//BELOW IS USED FOR RENDERING
+	//ALSO SIZE
+	JButton[][] buttonGrid = new JButton[BOARDSIZE][BOARDSIZE];
+	public JFrame frame = new JFrame();
+	private Point[] movePoints = new Point[2];
 	int wKingX, wKingY;
 	int bKingX, bKingY;
 	
 	Board() {
-		for (int y = 0; y < boardSize; y++) {
-			for (int x = 0; x < boardSize; x++) {
+		for (int y = 0; y < BOARDSIZE; y++) {
+			for (int x = 0; x < BOARDSIZE; x++) {
 				board[y][x] = new Tile();
 			}
 		}
 		makePiecesTop();
 		makePiecesBot();
 		createBoard();
+		SIZEADJ = (int)buttonGrid[0][0].getLocationOnScreen().getY() - (int)frame.getLocationOnScreen().getY();
+		System.out.println("This is SIZEADJ: " + SIZEADJ);
+	}
+
+	private void updateBoard() {
+		for (int y = 7; y >= 0; y--) {
+			for (int x = 0; x < BOARDSIZE; x++) {
+				Image i = board[y][x].getPiece().getImage();
+				i = i.getScaledInstance(TILEPIXELSIZE, TILEPIXELSIZE, Image.SCALE_DEFAULT);
+				buttonGrid[7-y][x].setIcon(new ImageIcon(i));
+				buttonGrid[7-y][x].setBorder(null);
+			}
+		}
+		SwingUtilities.updateComponentTreeUI(frame);
 	}
 
 	private void createBoard() {
-		JFrame frame = new JFrame();
-		frame.setLayout(new GridLayout(8, 8));
+		System.out.println("Alignment (y, x): " + frame.getBounds().getY() + ", " + frame.getLocation() + ", ");
 		JButton b;
+		frame.setVisible(true);
 		for (int y = 7; y >= 0; y--) {
 			for (int x = 0; x < 8; x++) {
 				Image i = board[y][x].getPiece().getImage();
-				i = i.getScaledInstance(SIZE, SIZE, Image.SCALE_DEFAULT);
+				i = i.getScaledInstance(TILEPIXELSIZE, TILEPIXELSIZE, Image.SCALE_DEFAULT);
 				b = new JButton();
 				if (board[y][x].pieceExists()) {
 					b = new JButton(new ImageIcon(i));
 				}
 				b.setOpaque(true);
 				b.setBorder(null);
-				/*
-				b.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						System.out.println("action detected");
-					}
-				});
-				*/
 				b.addMouseListener(new MouseListener() {
 					public void mousePressed(MouseEvent e) {
-						System.out.println("mouse pressed here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
+						System.out.println("This is the click (y, x): " + (e.getYOnScreen()-(int)frame.getLocation().getY()) + ", " + frame.getLocationOnScreen().getY());
+						System.out.println("This is the click2 (y, x): " + frame.getLocationOnScreen() + ", " + e.getX() + ", " + e.getLocationOnScreen());
+						System.out.println("Test equation: " + (frame.getLocationOnScreen().getY() - SIZEADJ));
+						System.out.println("Test equiv: " + (e.getLocationOnScreen().getY() - SIZEADJ - frame.getLocationOnScreen().getY()));
+
+						System.out.println("Test equation 2: " + (e.getYOnScreen() - frame.getLocation().getY() + frame.getLocationOnScreen().getY()));
+						getClick(e.getYOnScreen()-(int)frame.getLocation().getY(), e.getXOnScreen()-e.getX());
 					}
 					public void mouseReleased(MouseEvent e) {
-						System.out.println("mouse released here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
+						System.out.println("This is the release: " + e.getYOnScreen() + ", " + e.getXOnScreen());
+						System.out.println("This is the release not on screen: " + e.getY() + ", " + e.getX());
+						System.out.println(e.getPoint());
+						getRelease(e.getYOnScreen()/*-e.getY()*/, e.getXOnScreen()/*-e.getX()*/);
+						//getRelease(e.getYOnScreen(), e.getXOnScreen());
 					}
 					public void mouseClicked(MouseEvent e) {
-						System.out.println("mouse clicked here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
+						//System.out.println("mouse clicked here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
 					}
 					public void mouseExited(MouseEvent e) {
 
@@ -64,45 +91,87 @@ public class Board extends JFrame{
 				} else {
 					b.setBackground(Color.decode("#eeeed2"));
 				}
+				buttonGrid[7-y][x] = b;
 				frame.add(b);
 			}
 		}
-		frame.setBounds(0, 0, 8*SIZE, 8*SIZE);
+		frame.setLayout(new GridLayout(BOARDSIZE, BOARDSIZE));
+		frame.pack();
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	public void getClick(int y, int x) {
+		//System.out.println("mouse pressed here: y is " + x/TILEPIXELSIZE + ", x is " + (7-(y/TILEPIXELSIZE)));
+		movePoints[0] = new Point(x/TILEPIXELSIZE, 7-(y/TILEPIXELSIZE));
+	}
+
+	public void getRelease(int y, int x) {
+		movePoints[1] = new Point(x/TILEPIXELSIZE, 7-(y/TILEPIXELSIZE));
+		//System.out.println("mouse released here: y is " + x/TILEPIXELSIZE + ", x is " + (7-(y/TILEPIXELSIZE)));
+		if (isValidMove(movePoints)) {
+			makeMove(movePoints);
+		}
+	}
+
+	public Point[] getMove() {
+		return movePoints;
+	}
+
+	public int getTurnCount() {
+		return turnCount;
+	}
+
+	public void makeMove(Point[] p) {
+		int y1 = (int)p[0].getY();
+		int x1 = (int)p[0].getX();
+		int y2 = (int)p[1].getY();
+		int x2 = (int)p[1].getX();
+		makeMove(y1, x1, y2, x2);
+	}
+
+	public void makeMove(int y1, int x1, int y2, int x2) {
+		if (board[y2][x2].pieceExists()) {
+			takePiece(y1, x1, y2, x2);
+		} else if (isValidCastle(turnCount % 2 == 0, y1, x1, y2, x2)) {
+			castle(turnCount % 2 == 0, y1, x1, y2, x2);
+		} else {
+			movePiece(y1, x1, y2, x2);
+		}
+		turnCount++;
+		System.out.println(toString(false));
+		updateBoard();
+		//System.out.println(toString(true));
 	}
 	
 	public String toString(boolean isWhite) {
 		String temp = "";
+		Tile t = new Tile();
 		if (isWhite) {
-			for (int y = 0; y < boardSize; y++) {
+			for (int y = 0; y < BOARDSIZE; y++) {
 				temp += y + ". ";
-				for (int x = 0; x < boardSize; x++) {
-					temp += board[y][x].getPieceLetter() + board[y][x].getValue() + " ";
+				for (int x = 0; x < BOARDSIZE; x++) {
+					temp += board[y][x].getPieceColor() + board[y][x].getValue() + " ";
 				}
 				temp += "\n";
 			}
 			temp += "   ";
-			for (int i = 0; i < boardSize; i++) {
+			for (int i = 0; i < BOARDSIZE; i++) {
 				temp += i + ". ";
 			}
 		} else {
-			for (int y = boardSize-1; y >= 0; y--) {
+			for (int y = BOARDSIZE-1; y >= 0; y--) {
 				temp += y + ". ";
-				for (int x = 0; x < boardSize; x++) {
-					temp += board[y][x].getPieceLetter() + board[y][x].getValue() + " ";
+				for (int x = 0; x < BOARDSIZE; x++) {
+					temp += board[y][x].getPieceColor() + board[y][x].getValue() + " ";
 				}
 				temp += "\n";
 			}
 			temp += "   ";
-		 	for (int i = 0; i < boardSize; i++) {
+		 	for (int i = 0; i < BOARDSIZE; i++) {
 				temp += i + ". ";
 			}
 		}
-		System.out.println();
-		System.out.println("wking y and x: " + wKingY + " , " + wKingX);
-		System.out.println("bking y and x: " + bKingY + " , " + bKingX);
-		System.out.println();
 		return temp;
 	}
 	
@@ -123,31 +192,32 @@ public class Board extends JFrame{
 
 		// checks if the king can move out of check
 		for (int y = -1; y < 2; y++){
-			if (checkedKingY + y >= 0 && checkedKingY + y < boardSize) {
-				for (int x = -1; x < 2; x++) {
-					if (checkedKingX + x >= 0 && checkedKingX + x < boardSize) {
-						if (!checkKingCheck(c, checkedKingY + y, checkedKingX + x)) {
-							if (board[checkedKingY + y][checkedKingX + x].pieceExists()) {
-								if (c != board[checkedKingY+y][checkedKingX+x].getPiece().getColor()) {
-									return false;
-								}
-							} else {
-								return false;
-							}
-						}
-					}
+			if (checkedKingY + y < 0 || checkedKingY + y >= BOARDSIZE) {
+				continue;
+			}
+			for (int x = -1; x < 2; x++) {
+				if (checkedKingX + x < 0 || checkedKingX + x >= BOARDSIZE) {
+					continue;
+				}
+				if (checkKingCheck(c, checkedKingY + y, checkedKingX + x)) {
+					continue;
+				}
+				if (!board[checkedKingY + y][checkedKingX + x].pieceExists()) {
+					return false;
+				} else if (c != board[checkedKingY+y][checkedKingX+x].getPiece().getColor()) {
+					return false;
 				}
 			}
 		}
 		//this finds the piece checking the king, and stores its coordinates
-		for (int y = 0; y < boardSize; y++) {
-			for (int x = 0; x < boardSize; x++) {
+		for (int y = 0; y < BOARDSIZE; y++) {
+			for (int x = 0; x < BOARDSIZE; x++) {
 				if (board[y][x].getPiece().getColor() != c) {
 					if (board[y][x].canTake(y, x, checkedKingY, checkedKingX)) {
-						if (board[y][x].getPiece().canHori() && isHoriMove(y, x, checkedKingY, checkedKingX) && !canMoveHori(y, x, checkedKingY, checkedKingX)) {
+						if (!canMoveHori(y, x, checkedKingY, checkedKingX)) {
 							continue;
 						}
-						if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, checkedKingY, checkedKingX) && !canMoveDiag(y, x, checkedKingY, checkedKingX)) {
+						if (!canMoveDiag(y, x, checkedKingY, checkedKingX)) {
 							continue;
 						}
 						checkingY = y;
@@ -206,15 +276,15 @@ public class Board extends JFrame{
 		}
 
 		int currentStatic = 0, currentMoving = 0;
-		for (int y = 0; y < boardSize; y++) {
-			for (int x = 0; x < boardSize; x++) {
+		for (int y = 0; y < BOARDSIZE; y++) {
+			for (int x = 0; x < BOARDSIZE; x++) {
 				if (board[y][x].getPiece().getColor() == c) {
 					//if you can take the checking piece, then it is not checkmate (returns false)
 					if (board[y][x].canTake(y, x, checkingY, checkingX) && !createsACheckMove(y, x, checkingY, checkingX)) {
-						if (board[y][x].getPiece().canHori() && isHoriMove(y, x, checkingY, checkingX) && !canMoveHori(y, x, checkingY, checkingX)) {
+						if (!canMoveHori(y, x, checkingY, checkingX)) {
 							continue;
 						}
-						if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, checkingY, checkingX) && !canMoveDiag(y, x, checkingY, checkingX)) {
+						if (!canMoveDiag(y, x, checkingY, checkingX)) {
 							continue;
 						}
 						return false;
@@ -243,10 +313,10 @@ public class Board extends JFrame{
 
 							if (lowerVal < movingVal+currentMoving && movingVal+currentMoving > higherVal && staticVal+currentStatic == tempKingVal) {
 								if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
-									if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
+									if (!canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
 										continue;
 									}
-									if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
+									if (!canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
 										continue;
 									}
 									return false;
@@ -262,10 +332,10 @@ public class Board extends JFrame{
 								if (lowerXVal < x+p.getX(i) && x+p.getX(i) < higherXVal) {
 									if (higherVal - (y+p.getY(i)) == higherXVal - (x+p.getX(i))) {
 										if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
-											if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
+											if (!canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
 												continue;
 											}
-											if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
+											if (!canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
 												continue;
 											}
 											return false;
@@ -282,28 +352,28 @@ public class Board extends JFrame{
 	}
 	
 	public boolean isStalemated(boolean c) {
-		for (int y = 0; y < boardSize; y++) {
-			for (int x = 0; x < boardSize; x++) {
+		for (int y = 0; y < BOARDSIZE; y++) {
+			for (int x = 0; x < BOARDSIZE; x++) {
 				Piece p = board[y][x].getPiece();
 				if (p.getColor() != c) {
 					for (int i = 0 ; i < p.getLength(); i++) {
-						if (y+p.getY(i) >= 0 && y+p.getY(i) < boardSize && x+p.getX(i) >= 0 && x+p.getX(i) < boardSize) {
+						if (y+p.getY(i) >= 0 && y+p.getY(i) < BOARDSIZE && x+p.getX(i) >= 0 && x+p.getX(i) < BOARDSIZE) {
 							if (board[y+p.getY(i)][x+p.getX(i)].pieceExists()) {
 								if (board[y+p.getY(i)][x+p.getX(i)].getPiece().getColor() == c && !createsACheckMove(y, x, y+p.getY(i), x+p.getX(i)) && board[y][x].getPiece().canTake(y, x, y+p.getY(i), x+p.getX(i))) {
-									if (board[y][x].getPiece().canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
+									if (!canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
 										continue;
 									}
-									if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && !canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
+									if (!canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
 										continue;
 									}
 									return false;
 								}
 							} else {
 								if (!createsACheckMove(y, x, y+p.getY(i), x+p.getX(i))) {
-									if (p.canHori() && isHoriMove(y, x, y+p.getY(i), x+p.getX(i)) && canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
+									if (canMoveHori(y, x, y+p.getY(i), x+p.getX(i))) {
 										return false;
 									}
-									if (p.canDiag() && isDiagMove(y, x, y+p.getY(i), x+p.getX(i)) && canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
+									if (canMoveDiag(y, x, y+p.getY(i), x+p.getX(i))) {
 										return false;
 									}
 								}
@@ -317,7 +387,7 @@ public class Board extends JFrame{
 	}
 	
 	public boolean checkPawnQueen(int y) {
-		return y == 0 || y == boardSize-1;
+		return y == 0 || y == BOARDSIZE-1;
 	}
 	
 	public boolean checkKingCheck(boolean c) {
@@ -330,13 +400,13 @@ public class Board extends JFrame{
 	public boolean checkKingCheck(boolean c, int newY, int newX) {
 		//checks if the king is under check when if it moves to newY, newX
 		//kings color = c
-		for (int y = 0; y < boardSize; y++) {
-			for (int x = 0; x < boardSize; x++) {
+		for (int y = 0; y < BOARDSIZE; y++) {
+			for (int x = 0; x < BOARDSIZE; x++) {
 				if(board[y][x].canTake(y, x, newY, newX) && board[y][x].getPiece().getColor() != c) {
-					if (board[y][x].getPiece().canDiag() && isDiagMove(y, x, newY, newX) && !canMoveDiag(y, x, newY, newX)) {
+					if (!canMoveDiag(y, x, newY, newX)) {
 						continue;
 					}
-					if (board[y][x].getPiece().canHori() && isHoriMove(y, x, newY, newX) && !canMoveHori(y, x, newY, newX)) {
+					if (!canMoveHori(y, x, newY, newX)) {
 						continue;
 					}
 					return true;
@@ -365,63 +435,136 @@ public class Board extends JFrame{
 	}
 
 	public boolean canMoveHori(int y1, int x1, int y2, int x2) {
+		int smallestVal, highestVal;
+		if (!board[y1][x1].getPiece().canHori()) {
+			return true;
+		}
+		if (y1 != y2 && x1 != x2) {
+			return true;
+		}
 		if (y1 == y2) {
-		if (x1 > x2) {
-			int temp = x1;
-			x1 = x2;
-			x2 = temp;
-		}
-		for (int i = x1+1; i < x2; i++) {
-			if (board[y1][i].pieceExists()) {
-				return false;
+			smallestVal = x1;
+			highestVal = x2;
+			if (x1 > x2) {
+				smallestVal = x2;
+				highestVal = x1;
 			}
-		}
-		} else if (x1 == x2) {
-		if (y1 > y2) {
-			int temp = y1;
-			y1 = y2;
-			y2 = temp;
-		}
-		for (int i = y1+1; i < y2; i++) {
-			if (board[i][x1].pieceExists()) {
-			return false;
+			for (int i = smallestVal + 1; i < highestVal; i++) {
+				if (board[y1][i].pieceExists()) {
+					return false;
+				}
 			}
-		}
-		}
-		return true;
-	}
-
-	public boolean canMoveDiag(int y1, int x1, int y2, int x2) {
-		if (Math.abs(((1.0*y2)-y1)/((1.0*x2)-x1)) == 1) {
+		} else {
+			smallestVal = y1;
+			highestVal = y2;
 			if (y1 > y2) {
-				int temp = y1;
-				y1 = y2;
-				y2 = temp;
-				int temp2 = x1;
-				x1 = x2;
-				x2 = temp2;
+				smallestVal = y2;
+				highestVal = y1;
 			}
-			for (int i = 1; i < y2-y1; i++) {
-				if (x2 > x1) {
-					if (board[y1+i][x1+i].pieceExists()) {
-						return false;
-					}
-				} else {
-					if (board[y1+i][x1-i].pieceExists()) {
-						return false;
-					}
+			for (int i = smallestVal + 1; i < highestVal; i++) {
+				if (board[i][x1].pieceExists()) {
+					return false;
 				}
 			}
 		}
 		return true;
 	}
-	
-	public boolean isHoriMove(int y1, int x1, int y2, int x2) {
-		return y1==y2 || x1==x2;
+
+	public boolean canMoveDiag(int y1, int x1, int y2, int x2) {
+		int smallestY = y1, smallestX = x1;
+		if (!board[y1][x1].getPiece().canDiag()) {
+			return true;
+		}
+		if (Math.abs(((1.0*y2)-y1)/((1.0*x2)-x1)) != 1) {
+			return true;
+		}
+		if (y1 > y2) {
+			smallestY = y2;
+		}
+		if (x1 > x2) {
+			smallestX = x2;
+		}
+		for (int i = 1; i < y2-y1; i++) {
+			if (board[smallestY+i][smallestX+i].pieceExists()) {
+				return false;
+			}
+		}
+		return true;
 	}
-	
-	public boolean isDiagMove(int y1, int x1, int y2, int x2) {
-		return Math.abs(((1.0*y2)-y1)/((1.0*x2)-x1)) == 1;
+
+	public boolean isValidMove(int y1, int x1, int y2, int x2) {
+		Point[] p = new Point[2];
+		p[0] = new Point(x1, y1);
+		p[1] = new Point(x2, y2);
+		return isValidMove(p);
+	}
+
+	public boolean isValidMove(Point[] points) {
+
+		int y1 = (int)points[0].getY();
+		int x1 = (int)points[0].getX();
+		int y2 = (int)points[1].getY();
+		int x2 = (int)points[1].getX();
+
+		if ((y1 > BOARDSIZE-1 || x1 > BOARDSIZE-1 || y2 > BOARDSIZE-1 || x2 > BOARDSIZE-1)) {
+			System.out.println("Move too large");
+			return false;
+		}
+		if ((y1 < 0 || x1 < 0 || y2 < 0 || x2 < 0)) {
+			System.out.println("Move too small");
+			return false;
+		}
+		if (!board[y1][x1].pieceExists()) {
+			System.out.println("No piece exists");
+			return false;
+		}
+		if (board[y1][x1].getPiece().getColor() != (turnCount % 2 == 0)) {
+			System.out.println("Wrong color");
+			return false;
+		}
+		if (!canMoveDiag(y1, x1, y2, x2)) {
+			System.out.println("You are blocked diag");
+			return false;
+		}
+		if (!canMoveHori(y1, x1, y2, x2)) {
+			System.out.println("You are blocked hori");
+			return false;
+		}
+		if (createsACheckMove(y1, x1, y2, x2)) {
+			System.out.println("Creating a check");
+			return false;
+		}
+		if (board[y2][x2].pieceExists()) {
+			if (board[y2][x2].getPiece().getColor() == board[y1][x1].getPiece().getColor()) {
+				System.out.println("Can't take same color");
+				return false;
+			}
+			if (board[y1][y2].canTake(y1, x1, y2, x2)) {
+				//add promoting function
+				System.out.println("Valid take detected");
+				return true;
+			} else {
+				System.out.println("Invalid take move");
+				return false;
+			}
+		} else if (isValidCastle(turnCount%2==0, y1, x1, y2, x2) && checkKingCheck(turnCount%2 == 0)) {
+			castle(turnCount%2 == 0, y1, x1, y2, x2);
+			return false;
+		} else if (board[y1][y2].isValidMove(y1, x1, y2, x2)) {
+			//add promoting function
+			System.out.println("Valid move detected");
+			
+			return true;
+		}
+		return false;
+	}
+
+	public void hasPawnQueened(int y1, int x1, int y2, int x2) {
+		if (board[y1][x1].getPieceValue() != "p") {
+			return;
+		}
+		System.out.println(2);
+		
 	}
 	
 	public void adjustKing(int y1, int x1, int y2, int x2) {
@@ -459,7 +602,7 @@ public class Board extends JFrame{
 		int rx = 0;
 		int nrx = x2+1;
 		if (x2 == x1+2) {
-			rx = boardSize-1;
+			rx = BOARDSIZE-1;
 			nrx = x2-1;
 		}
 		board[y1][nrx].setPiece(board[y1][rx].getPiece());
@@ -528,20 +671,20 @@ public class Board extends JFrame{
 		Piece r = new Rook(true);
 		Piece q = new Queen(true);
 		Piece k = new King(true);
-		for (int i = 0; i < boardSize; i++) {
+		for (int i = 0; i < BOARDSIZE; i++) {
 			p = new Pawn(true);
 			board[1][i].setPiece(p);
 		}
 		board[0][0].setPiece(r);
-		board[0][boardSize-1].setPiece(r);
+		board[0][BOARDSIZE-1].setPiece(r);
 		board[0][1].setPiece(n);
-		board[0][boardSize-1-1].setPiece(n);
+		board[0][BOARDSIZE-1-1].setPiece(n);
 		board[0][2].setPiece(b);
-		board[0][boardSize-2-1].setPiece(b);
+		board[0][BOARDSIZE-2-1].setPiece(b);
 		board[0][4].setPiece(k);
 		wKingX = 4;
 		wKingY = 0;
-		board[0][boardSize-5].setPiece(q);
+		board[0][BOARDSIZE-5].setPiece(q);
 	}
 	
 	public void makePiecesBot() {
@@ -551,19 +694,19 @@ public class Board extends JFrame{
 		Piece r = new Rook(false);
 		Piece q = new Queen(false);
 		Piece k = new King(false);
-		for (int i = 0; i < boardSize; i++) {
+		for (int i = 0; i < BOARDSIZE; i++) {
 			p = new Pawn(false);
-			board[boardSize-1-1][i].setPiece(p);
+			board[BOARDSIZE-1-1][i].setPiece(p);
 		}
-		board[boardSize-1][0].setPiece(r);
-		board[boardSize-1][boardSize-1].setPiece(r);
-		board[boardSize-1][1].setPiece(n);
-		board[boardSize-1][boardSize-1-1].setPiece(n);
-		board[boardSize-1][2].setPiece(b);
-		board[boardSize-1][boardSize-2-1].setPiece(b);
-		board[boardSize-1][3].setPiece(q);
-		board[boardSize-1][boardSize-3-1].setPiece(k);
-		bKingY = boardSize-1;
-		bKingX = boardSize-3-1;
+		board[BOARDSIZE-1][0].setPiece(r);
+		board[BOARDSIZE-1][BOARDSIZE-1].setPiece(r);
+		board[BOARDSIZE-1][1].setPiece(n);
+		board[BOARDSIZE-1][BOARDSIZE-1-1].setPiece(n);
+		board[BOARDSIZE-1][2].setPiece(b);
+		board[BOARDSIZE-1][BOARDSIZE-2-1].setPiece(b);
+		board[BOARDSIZE-1][3].setPiece(q);
+		board[BOARDSIZE-1][BOARDSIZE-3-1].setPiece(k);
+		bKingY = BOARDSIZE-1;
+		bKingX = BOARDSIZE-3-1;
 	}
 }

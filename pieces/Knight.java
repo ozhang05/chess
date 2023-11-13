@@ -1,9 +1,11 @@
+package pieces;
+
 import java.awt.Image;
 import java.io.IOException;
 import javax.imageio.*;
 
 public class Knight extends Piece{
-	Knight(boolean color) {
+	public Knight(boolean color) {
 		super(color);
 		addPoint(-2, -1);
 		addPoint(-2, 1);
@@ -13,6 +15,10 @@ public class Knight extends Piece{
 		addPoint(1, -2);
 		addPoint(2, 1);
 		addPoint(2, -1);
+	}
+
+	public Knight(Piece p) {
+		this(p.getColor());
 	}
 
 	public Image getImage() {
@@ -28,11 +34,7 @@ public class Knight extends Piece{
 		return img;
 
 	}
-
-
-	Knight(Piece p) {
-		this(p.getColor());
-	}	
+	
 	public boolean isValidMove(int y1, int x1, int y2, int x2) {
 		int tempY = Math.abs(y1-y2);
 	    int tempX = Math.abs(x1-x2);

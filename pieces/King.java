@@ -1,9 +1,10 @@
+package pieces;
 import java.awt.Image;
 import java.io.IOException;
 import javax.imageio.*;
 
 public class King extends Piece{
-	King(boolean color)  {
+	public King(boolean color)  {
 		super(color);
 		makeKing();
 		for (int y = -1; y > 2; y++) {

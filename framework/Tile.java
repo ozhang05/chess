@@ -1,3 +1,7 @@
+package framework;
+
+import pieces.Piece;
+
 public class Tile {
 	Piece p = new Piece();
 	public void setPiece(Piece temp) {
@@ -6,7 +10,7 @@ public class Tile {
 	public Piece getPiece() {
 		return p;
 	}
-	public String getPieceLetter() {
+	public String getPieceColor() {
 		if (p.getColor()) {
 			return "w";
 		} else if (!pieceExists()) {

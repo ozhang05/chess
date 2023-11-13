@@ -1,11 +1,15 @@
+package pieces;
+
 import java.awt.Image;
 import java.io.IOException;
 import javax.imageio.*;
 
+import framework.Board;
+
 public class Queen extends Piece{
-	Queen(boolean color) {
+	public Queen(boolean color) {
 		super(color, true, true);
-		for(int i = -7; i < Board.boardSize; i++) {
+		for(int i = -7; i < Board.BOARDSIZE; i++) {
 			if (i != 0) {
 				addPoint(i, 0);
 				addPoint(0, i);
@@ -13,6 +17,10 @@ public class Queen extends Piece{
 				addPoint(i, -i);
 			}
 		}
+	}
+
+	public Queen(Piece p) {
+		this(p.getColor());
 	}
 
 	public Image getImage() {
@@ -29,10 +37,6 @@ public class Queen extends Piece{
 
 	}
 
-
-	Queen(Piece p) {
-		this(p.getColor());
-	}
 	public boolean isValidMove(int y1, int x1, int y2, int x2) {
 	  if (y1 == y2 || x1 == x2) {
 		  if (y1-y2 == 0 && x1-x2 == 0) {
