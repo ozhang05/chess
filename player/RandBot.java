@@ -7,8 +7,8 @@ import framework.Board;
 import pieces.Piece;
 
 public class RandBot {
-    ArrayList<Point> moveList = new ArrayList<Point>();
-    ArrayList<Integer> moveList2 = new ArrayList<Integer>();
+    HashMap<Point, Point> moveList = new HashMap<Point, Point>();
+    ArrayList<Point[]> moveList2 = new ArrayList<Point[]>();
 
     public void genMoveList(Board b) {
         boolean c = b.getTurnCount()%2 == 0;
@@ -28,7 +28,14 @@ public class RandBot {
                             continue;
                         }
                         if (b.board[y+p.getY(i)][x+p.getX(i)].pieceExists()) {
-
+                            if (b.board[y+p.getY(i)][x+p.getX(i)].getPiece().getColor() == b.board[y][x].getPiece().getColor()) {
+                                continue;
+                            }
+                            if (!b.board[y][x].getPiece().canTake(y, x, y+p.getY(i), x+p.getX(i))) {
+                                continue;
+                            }
+                            Point[] temp = {new Point(x, y), new Point(x+p.getX(i), y+p.getY(i))};
+                            moveList2.add(temp);
                         } else {
                             
                         }
@@ -42,8 +49,8 @@ public class RandBot {
         }
     }
 
-    public Point getMove(Board b) {
+    public Point[] getMove(Board b) {
         int random = new Random().nextInt(moveList.size());
-        return moveList.get(random);
+        return moveList2.get(random);
     }
 }

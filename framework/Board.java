@@ -61,20 +61,20 @@ public class Board extends JFrame{
 				b.setBorder(null);
 				b.addMouseListener(new MouseListener() {
 					public void mousePressed(MouseEvent e) {
-						System.out.println("This is the click (y, x): " + (e.getYOnScreen()-(int)frame.getLocation().getY()) + ", " + frame.getLocationOnScreen().getY());
-						System.out.println("This is the click2 (y, x): " + frame.getLocationOnScreen() + ", " + e.getX() + ", " + e.getLocationOnScreen());
-						System.out.println("Test equation: " + (frame.getLocationOnScreen().getY() - SIZEADJ));
+						//System.out.println("This is the click (y, x): " + (e.getYOnScreen()-(int)frame.getLocation().getY()) + ", " + frame.getLocationOnScreen().getY());
+						//System.out.println("This is the click2 (y, x): " + frame.getLocationOnScreen() + ", " + e.getX() + ", " + e.getLocationOnScreen());
+						//System.out.println("Test equation: " + (frame.getLocationOnScreen().getY() - SIZEADJ));
 						System.out.println("Test equiv: " + (e.getLocationOnScreen().getY() - SIZEADJ - frame.getLocationOnScreen().getY()));
 
-						System.out.println("Test equation 2: " + (e.getYOnScreen() - frame.getLocation().getY() + frame.getLocationOnScreen().getY()));
-						getClick(e.getYOnScreen()-(int)frame.getLocation().getY(), e.getXOnScreen()-e.getX());
+						//System.out.println("Test equation 2: " + (e.getYOnScreen() - frame.getLocation().getY() + frame.getLocationOnScreen().getY()));
+
+						getClick(e.getYOnScreen() - SIZEADJ - (int)frame.getLocationOnScreen().getY(), e.getXOnScreen()-e.getX());
 					}
 					public void mouseReleased(MouseEvent e) {
 						System.out.println("This is the release: " + e.getYOnScreen() + ", " + e.getXOnScreen());
-						System.out.println("This is the release not on screen: " + e.getY() + ", " + e.getX());
 						System.out.println(e.getPoint());
-						getRelease(e.getYOnScreen()/*-e.getY()*/, e.getXOnScreen()/*-e.getX()*/);
-						//getRelease(e.getYOnScreen(), e.getXOnScreen());
+						getRelease(e.getYOnScreen() - SIZEADJ, e.getXOnScreen());
+						//getRelease(e.getYOnScreen()/*-e.getY()*/, e.getXOnScreen()/*-e.getX()*/);
 					}
 					public void mouseClicked(MouseEvent e) {
 						//System.out.println("mouse clicked here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
@@ -102,13 +102,13 @@ public class Board extends JFrame{
 	}
 
 	public void getClick(int y, int x) {
-		//System.out.println("mouse pressed here: y is " + x/TILEPIXELSIZE + ", x is " + (7-(y/TILEPIXELSIZE)));
+		System.out.println("mouse pressed here: x is " + x/TILEPIXELSIZE + ", y is " + (7-(y/TILEPIXELSIZE)));
 		movePoints[0] = new Point(x/TILEPIXELSIZE, 7-(y/TILEPIXELSIZE));
 	}
 
 	public void getRelease(int y, int x) {
 		movePoints[1] = new Point(x/TILEPIXELSIZE, 7-(y/TILEPIXELSIZE));
-		//System.out.println("mouse released here: y is " + x/TILEPIXELSIZE + ", x is " + (7-(y/TILEPIXELSIZE)));
+		System.out.println("mouse released here: x is " + x/TILEPIXELSIZE + ", y is " + (7-(y/TILEPIXELSIZE)));
 		if (isValidMove(movePoints)) {
 			makeMove(movePoints);
 		}
@@ -146,7 +146,6 @@ public class Board extends JFrame{
 	
 	public String toString(boolean isWhite) {
 		String temp = "";
-		Tile t = new Tile();
 		if (isWhite) {
 			for (int y = 0; y < BOARDSIZE; y++) {
 				temp += y + ". ";
@@ -409,6 +408,7 @@ public class Board extends JFrame{
 					if (!canMoveHori(y, x, newY, newX)) {
 						continue;
 					}
+					System.out.println("checkKingCheck: True");
 					return true;
 				}
 			}
@@ -484,7 +484,8 @@ public class Board extends JFrame{
 		if (x1 > x2) {
 			smallestX = x2;
 		}
-		for (int i = 1; i < y2-y1; i++) {
+		System.out.println("lil math equation ova here: " + (y1+y2-(2*smallestY)));
+		for (int i = 1; i < y1+y2-(2*smallestY); i++) {
 			if (board[smallestY+i][smallestX+i].pieceExists()) {
 				return false;
 			}
@@ -658,7 +659,7 @@ public class Board extends JFrame{
 		board[y2][x2].setPiece(p);
 		board[y1][x1].getPiece().changeMoveStatus(firstMove);
 
-		
+		//This code only runs if the piece detected is a king, so it is ok to use without checking
 		adjustKing(y2, x2, y1, x1);
 		return checked;
 	}
