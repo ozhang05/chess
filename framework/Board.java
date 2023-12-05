@@ -9,12 +9,11 @@ import pieces.*;
 public class Board extends JFrame{
 	public static final int BOARDSIZE = 8;
 	public static final int TILEPIXELSIZE = 100;
-	public final int SIZEADJ;
 	int turnCount = 0;
 	public Tile[][] board = new Tile[BOARDSIZE][BOARDSIZE];
 	//BELOW IS USED FOR RENDERING
 	//ALSO SIZE
-	JButton[][] buttonGrid = new JButton[BOARDSIZE][BOARDSIZE];
+	JLabel[][] imageGrid = new JLabel[BOARDSIZE][BOARDSIZE];
 	public JFrame frame = new JFrame();
 	private Point[] movePoints = new Point[2];
 	int wKingX, wKingY;
@@ -29,8 +28,6 @@ public class Board extends JFrame{
 		makePiecesTop();
 		makePiecesBot();
 		createBoard();
-		SIZEADJ = (int)buttonGrid[0][0].getLocationOnScreen().getY() - (int)frame.getLocationOnScreen().getY();
-		System.out.println("This is SIZEADJ: " + SIZEADJ);
 	}
 
 	private void updateBoard() {
@@ -38,8 +35,8 @@ public class Board extends JFrame{
 			for (int x = 0; x < BOARDSIZE; x++) {
 				Image i = board[y][x].getPiece().getImage();
 				i = i.getScaledInstance(TILEPIXELSIZE, TILEPIXELSIZE, Image.SCALE_DEFAULT);
-				buttonGrid[7-y][x].setIcon(new ImageIcon(i));
-				buttonGrid[7-y][x].setBorder(null);
+				imageGrid[7-y][x].setIcon(new ImageIcon(i));
+				imageGrid[7-y][x].setBorder(null);
 			}
 		}
 		SwingUtilities.updateComponentTreeUI(frame);
@@ -47,68 +44,99 @@ public class Board extends JFrame{
 
 	private void createBoard() {
 		System.out.println("Alignment (y, x): " + frame.getBounds().getY() + ", " + frame.getLocation() + ", ");
-		JButton b;
+		JLabel b;
 		frame.setVisible(true);
 		for (int y = 7; y >= 0; y--) {
 			for (int x = 0; x < 8; x++) {
 				Image i = board[y][x].getPiece().getImage();
 				i = i.getScaledInstance(TILEPIXELSIZE, TILEPIXELSIZE, Image.SCALE_DEFAULT);
-				b = new JButton();
+				b = new JLabel();
 				if (board[y][x].pieceExists()) {
-					b = new JButton(new ImageIcon(i));
+					b = new JLabel(new ImageIcon(i));
 				}
 				b.setOpaque(true);
 				b.setBorder(null);
-				b.addMouseListener(new MouseListener() {
-					public void mousePressed(MouseEvent e) {
-						//System.out.println("This is the click (y, x): " + (e.getYOnScreen()-(int)frame.getLocation().getY()) + ", " + frame.getLocationOnScreen().getY());
-						//System.out.println("This is the click2 (y, x): " + frame.getLocationOnScreen() + ", " + e.getX() + ", " + e.getLocationOnScreen());
-						//System.out.println("Test equation: " + (frame.getLocationOnScreen().getY() - SIZEADJ));
-						System.out.println("Test equiv: " + (e.getLocationOnScreen().getY() - SIZEADJ - frame.getLocationOnScreen().getY()));
+				// b.addMouseListener(new MouseListener() {
+				// 	public void mousePressed(MouseEvent e) {
+				// 		//System.out.println("This is the click (y, x): " + (e.getYOnScreen()-(int)frame.getLocation().getY()) + ", " + frame.getLocationOnScreen().getY());
+				// 		//System.out.println("This is the click2 (y, x): " + frame.getLocationOnScreen() + ", " + e.getX() + ", " + e.getLocationOnScreen());
+				// 		//System.out.println("Test equation: " + (frame.getLocationOnScreen().getY() - SIZEADJ));
+				// 		System.out.println("Test easier adj: " + frame.getSize());
+				// 		System.out.println("Test equiv: " + (e.getLocationOnScreen().getY() - SIZEADJ - frame.getLocationOnScreen().getY()));
 
-						//System.out.println("Test equation 2: " + (e.getYOnScreen() - frame.getLocation().getY() + frame.getLocationOnScreen().getY()));
+				// 		//System.out.println("Test equation 2: " + (e.getYOnScreen() - frame.getLocation().getY() + frame.getLocationOnScreen().getY()));
 
-						getClick(e.getYOnScreen() - SIZEADJ - (int)frame.getLocationOnScreen().getY(), e.getXOnScreen()-e.getX());
-					}
-					public void mouseReleased(MouseEvent e) {
-						System.out.println("This is the release: " + e.getYOnScreen() + ", " + e.getXOnScreen());
-						System.out.println(e.getPoint());
-						getRelease(e.getYOnScreen() - SIZEADJ, e.getXOnScreen());
-						//getRelease(e.getYOnScreen()/*-e.getY()*/, e.getXOnScreen()/*-e.getX()*/);
-					}
-					public void mouseClicked(MouseEvent e) {
-						//System.out.println("mouse clicked here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
-					}
-					public void mouseExited(MouseEvent e) {
+				// 		getClick(e.getYOnScreen() - SIZEADJ - (int)frame.getLocationOnScreen().getY(), e.getXOnScreen()-e.getX());
+				// 	}
+				// 	public void mouseReleased(MouseEvent e) {
+				// 		System.out.println("This is the release: " + e.getYOnScreen() + ", " + e.getXOnScreen());
+				// 		System.out.println(e.getPoint());
+				// 		getRelease(e.getYOnScreen() - SIZEADJ, e.getXOnScreen());
+				// 		//getRelease(e.getYOnScreen()/*-e.getY()*/, e.getXOnScreen()/*-e.getX()*/);
+				// 	}
+				// 	public void mouseClicked(MouseEvent e) {
+				// 		//System.out.println("mouse clicked here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
+				// 	}
+				// 	public void mouseExited(MouseEvent e) {
 
-					}
-					public void mouseEntered(MouseEvent e) {
+				// 	}
+				// 	public void mouseEntered(MouseEvent e) {
 
-					}
-				});
+				// 	}
+				// });
 				if ((y+x)%2 == 0) {
 					b.setBackground(Color.decode("#769656"));
 				} else {
 					b.setBackground(Color.decode("#eeeed2"));
 				}
-				buttonGrid[7-y][x] = b;
+				imageGrid[7-y][x] = b;
 				frame.add(b);
 			}
 		}
+
+		frame.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+				System.out.println("frame mouse pressed y: " + e.getY() + ", x: " + e.getX());
+				System.out.println("frame pos on screen y: " + e.getLocationOnScreen().getY() + ", x: " + e.getLocationOnScreen().getX());
+				System.out.println("get on screen screen y: " + e.getYOnScreen() + ", x: " + e.getXOnScreen());
+				getClick(e.getYOnScreen(), e.getXOnScreen());
+			}
+			public void mouseReleased(MouseEvent e) {
+				getRelease(e.getYOnScreen(), e.getXOnScreen());
+			}
+			public void mouseClicked(MouseEvent e) {
+
+			}
+			public void mouseEntered(MouseEvent e) {
+
+			}
+			public void mouseExited(MouseEvent e) {
+
+			}
+		});
+
 		frame.setLayout(new GridLayout(BOARDSIZE, BOARDSIZE));
 		frame.pack();
+		frame.setResizable(false);
+		frame.setTitle("Chess Board");
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 	public void getClick(int y, int x) {
-		System.out.println("mouse pressed here: x is " + x/TILEPIXELSIZE + ", y is " + (7-(y/TILEPIXELSIZE)));
-		movePoints[0] = new Point(x/TILEPIXELSIZE, 7-(y/TILEPIXELSIZE));
+		int sizeAdjY = (int)imageGrid[0][0].getLocationOnScreen().getY()%TILEPIXELSIZE;
+		int sizeAdjX = (int)imageGrid[0][0].getLocationOnScreen().getX()%TILEPIXELSIZE;
+		System.out.println("test sizeAdjY: " + sizeAdjY);
+		System.out.println("test sizeAdjX: " + sizeAdjX);
+		System.out.println("mouse pressed here: x is " + (x-sizeAdjX)/TILEPIXELSIZE + ", y is " + (7-((y-sizeAdjY)/TILEPIXELSIZE)));
+		movePoints[0] = new Point((x-sizeAdjX)/TILEPIXELSIZE, 7-((y-sizeAdjY)/TILEPIXELSIZE));
 	}
 
 	public void getRelease(int y, int x) {
-		movePoints[1] = new Point(x/TILEPIXELSIZE, 7-(y/TILEPIXELSIZE));
-		System.out.println("mouse released here: x is " + x/TILEPIXELSIZE + ", y is " + (7-(y/TILEPIXELSIZE)));
+		int sizeAdjY = (int)imageGrid[0][0].getLocationOnScreen().getY()%TILEPIXELSIZE;
+		int sizeAdjX = (int)imageGrid[0][0].getLocationOnScreen().getX()%TILEPIXELSIZE;
+		movePoints[1] = new Point((x-sizeAdjX)/TILEPIXELSIZE, 7-((y-sizeAdjY)/TILEPIXELSIZE));
+		System.out.println("mouse pressed here: x is " + (x-sizeAdjX)/TILEPIXELSIZE + ", y is " + (7-((y-sizeAdjY)/TILEPIXELSIZE)));
 		if (isValidMove(movePoints)) {
 			makeMove(movePoints);
 		}
@@ -540,7 +568,7 @@ public class Board extends JFrame{
 				System.out.println("Can't take same color");
 				return false;
 			}
-			if (board[y1][y2].canTake(y1, x1, y2, x2)) {
+			if (board[y1][x1].canTake(y1, x1, y2, x2)) {
 				//add promoting function
 				System.out.println("Valid take detected");
 				return true;
@@ -548,13 +576,12 @@ public class Board extends JFrame{
 				System.out.println("Invalid take move");
 				return false;
 			}
-		} else if (isValidCastle(turnCount%2==0, y1, x1, y2, x2) && checkKingCheck(turnCount%2 == 0)) {
+		}	else if (isValidCastle(turnCount%2==0, y1, x1, y2, x2) && checkKingCheck(turnCount%2 == 0)) {
 			castle(turnCount%2 == 0, y1, x1, y2, x2);
 			return false;
-		} else if (board[y1][y2].isValidMove(y1, x1, y2, x2)) {
+		}	else if (board[y1][x1].isValidMove(y1, x1, y2, x2)) {
 			//add promoting function
 			System.out.println("Valid move detected");
-			
 			return true;
 		}
 		return false;

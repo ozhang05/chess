@@ -38,7 +38,7 @@ public class Knight extends Piece{
 	public boolean isValidMove(int y1, int x1, int y2, int x2) {
 		int tempY = Math.abs(y1-y2);
 	    int tempX = Math.abs(x1-x2);
-	    return tempY + tempX == 3 && tempY > 0 && tempX > 0;
+	    return tempY + tempX == 3 && tempY != 0 && tempX != 0;
 	}
 
 	public boolean canTake(int a, int b, int c, int d) {
