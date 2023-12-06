@@ -43,7 +43,6 @@ public class Board extends JFrame{
 	}
 
 	private void createBoard() {
-		System.out.println("Alignment (y, x): " + frame.getBounds().getY() + ", " + frame.getLocation() + ", ");
 		JLabel b;
 		frame.setVisible(true);
 		for (int y = 7; y >= 0; y--) {
@@ -56,34 +55,6 @@ public class Board extends JFrame{
 				}
 				b.setOpaque(true);
 				b.setBorder(null);
-				// b.addMouseListener(new MouseListener() {
-				// 	public void mousePressed(MouseEvent e) {
-				// 		//System.out.println("This is the click (y, x): " + (e.getYOnScreen()-(int)frame.getLocation().getY()) + ", " + frame.getLocationOnScreen().getY());
-				// 		//System.out.println("This is the click2 (y, x): " + frame.getLocationOnScreen() + ", " + e.getX() + ", " + e.getLocationOnScreen());
-				// 		//System.out.println("Test equation: " + (frame.getLocationOnScreen().getY() - SIZEADJ));
-				// 		System.out.println("Test easier adj: " + frame.getSize());
-				// 		System.out.println("Test equiv: " + (e.getLocationOnScreen().getY() - SIZEADJ - frame.getLocationOnScreen().getY()));
-
-				// 		//System.out.println("Test equation 2: " + (e.getYOnScreen() - frame.getLocation().getY() + frame.getLocationOnScreen().getY()));
-
-				// 		getClick(e.getYOnScreen() - SIZEADJ - (int)frame.getLocationOnScreen().getY(), e.getXOnScreen()-e.getX());
-				// 	}
-				// 	public void mouseReleased(MouseEvent e) {
-				// 		System.out.println("This is the release: " + e.getYOnScreen() + ", " + e.getXOnScreen());
-				// 		System.out.println(e.getPoint());
-				// 		getRelease(e.getYOnScreen() - SIZEADJ, e.getXOnScreen());
-				// 		//getRelease(e.getYOnScreen()/*-e.getY()*/, e.getXOnScreen()/*-e.getX()*/);
-				// 	}
-				// 	public void mouseClicked(MouseEvent e) {
-				// 		//System.out.println("mouse clicked here: y is " + e.getYOnScreen() + ", x is " + e.getXOnScreen());
-				// 	}
-				// 	public void mouseExited(MouseEvent e) {
-
-				// 	}
-				// 	public void mouseEntered(MouseEvent e) {
-
-				// 	}
-				// });
 				if ((y+x)%2 == 0) {
 					b.setBackground(Color.decode("#769656"));
 				} else {
@@ -96,9 +67,6 @@ public class Board extends JFrame{
 
 		frame.addMouseListener(new MouseListener() {
 			public void mousePressed(MouseEvent e) {
-				System.out.println("frame mouse pressed y: " + e.getY() + ", x: " + e.getX());
-				System.out.println("frame pos on screen y: " + e.getLocationOnScreen().getY() + ", x: " + e.getLocationOnScreen().getX());
-				System.out.println("get on screen screen y: " + e.getYOnScreen() + ", x: " + e.getXOnScreen());
 				getClick(e.getYOnScreen(), e.getXOnScreen());
 			}
 			public void mouseReleased(MouseEvent e) {
@@ -126,9 +94,6 @@ public class Board extends JFrame{
 	public void getClick(int y, int x) {
 		int sizeAdjY = (int)imageGrid[0][0].getLocationOnScreen().getY()%TILEPIXELSIZE;
 		int sizeAdjX = (int)imageGrid[0][0].getLocationOnScreen().getX()%TILEPIXELSIZE;
-		System.out.println("test sizeAdjY: " + sizeAdjY);
-		System.out.println("test sizeAdjX: " + sizeAdjX);
-		System.out.println("mouse pressed here: x is " + (x-sizeAdjX)/TILEPIXELSIZE + ", y is " + (7-((y-sizeAdjY)/TILEPIXELSIZE)));
 		movePoints[0] = new Point((x-sizeAdjX)/TILEPIXELSIZE, 7-((y-sizeAdjY)/TILEPIXELSIZE));
 	}
 
@@ -136,7 +101,6 @@ public class Board extends JFrame{
 		int sizeAdjY = (int)imageGrid[0][0].getLocationOnScreen().getY()%TILEPIXELSIZE;
 		int sizeAdjX = (int)imageGrid[0][0].getLocationOnScreen().getX()%TILEPIXELSIZE;
 		movePoints[1] = new Point((x-sizeAdjX)/TILEPIXELSIZE, 7-((y-sizeAdjY)/TILEPIXELSIZE));
-		System.out.println("mouse pressed here: x is " + (x-sizeAdjX)/TILEPIXELSIZE + ", y is " + (7-((y-sizeAdjY)/TILEPIXELSIZE)));
 		if (isValidMove(movePoints)) {
 			makeMove(movePoints);
 		}
@@ -277,7 +241,6 @@ public class Board extends JFrame{
 				scenario = 1;
 				isY = true;
 				higherVal = checkedKingY;
-				lowerVal = checkingY;
 				if (checkingY > checkedKingY) {
 					higherVal = checkingY;
 					lowerVal = checkedKingX;
@@ -499,7 +462,10 @@ public class Board extends JFrame{
 	}
 
 	public boolean canMoveDiag(int y1, int x1, int y2, int x2) {
-		int smallestY = y1, smallestX = x1;
+		//usedY is smallest, usedX is corresponding value
+		int usedY = y1;
+		int usedX = x1;
+		int xDirection = 1;
 		if (!board[y1][x1].getPiece().canDiag()) {
 			return true;
 		}
@@ -507,14 +473,17 @@ public class Board extends JFrame{
 			return true;
 		}
 		if (y1 > y2) {
-			smallestY = y2;
+			usedY = y2;
+			usedX = x2;
 		}
 		if (x1 > x2) {
-			smallestX = x2;
+			xDirection = -1;
 		}
-		System.out.println("lil math equation ova here: " + (y1+y2-(2*smallestY)));
-		for (int i = 1; i < y1+y2-(2*smallestY); i++) {
-			if (board[smallestY+i][smallestX+i].pieceExists()) {
+		for (int i = 1; i < y1+y2-(2*usedY); i++) {
+			System.out.println("checked diag square: y is " + (usedY+i) + ", x is " + (usedX+(i*xDirection)));
+			if (board[usedY+i][usedX+ (i*xDirection)].pieceExists()) {
+				System.out.println("moving diag piece: y is " + usedY + ", x is " + usedX);
+				System.out.println("blocking diag piece: y is " + (usedY+i) + ", x is " + (usedX+(i*xDirection)));
 				return false;
 			}
 		}
@@ -672,10 +641,12 @@ public class Board extends JFrame{
 		if (board[y2][x2].pieceExists()) {
 			p = board[y2][x2].getPiece();
 			if (!takePiece(y1, x1, y2, x2)) {
+				System.out.println("takepiece false: ");
 				return false;
 			}
 		} else {
 			if (!movePiece(y1, x1, y2, x2)) {
+				System.out.println("movepiece false: ");
 				return false;
 			}
 		}
