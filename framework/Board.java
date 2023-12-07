@@ -463,8 +463,9 @@ public class Board extends JFrame{
 
 	public boolean canMoveDiag(int y1, int x1, int y2, int x2) {
 		//usedY is smallest, usedX is corresponding value
-		int usedY = y1;
-		int usedX = x1;
+		//not gonna pretend to know how this works
+		int difference = Math.abs(y1-y2);
+		int yDirection = 1;
 		int xDirection = 1;
 		if (!board[y1][x1].getPiece().canDiag()) {
 			return true;
@@ -473,17 +474,13 @@ public class Board extends JFrame{
 			return true;
 		}
 		if (y1 > y2) {
-			usedY = y2;
-			usedX = x2;
+			yDirection = -1;
 		}
 		if (x1 > x2) {
 			xDirection = -1;
 		}
-		for (int i = 1; i < y1+y2-(2*usedY); i++) {
-			System.out.println("checked diag square: y is " + (usedY+i) + ", x is " + (usedX+(i*xDirection)));
-			if (board[usedY+i][usedX+ (i*xDirection)].pieceExists()) {
-				System.out.println("moving diag piece: y is " + usedY + ", x is " + usedX);
-				System.out.println("blocking diag piece: y is " + (usedY+i) + ", x is " + (usedX+(i*xDirection)));
+		for (int i = 1; i < difference; i++) {
+			if (board[y1+ (i*yDirection)][x1+ (i*xDirection)].pieceExists()) {
 				return false;
 			}
 		}
